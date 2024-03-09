@@ -73,3 +73,7 @@ print(job_details)
 Make sure to replace `'http://localhost:5000'` with the actual URL where your Flask application is hosted.
 
 Feel free to customize and extend the API as needed for your project. If you have any further questions or need assistance, don't hesitate to ask!
+
+### My specific use case for the api:
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/XuAqk3eZNGw/0.jpg)](https://www.youtube.com/watch?v=XuAqk3eZNGw)
