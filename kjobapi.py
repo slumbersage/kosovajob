@@ -1,9 +1,6 @@
 from flask import Flask, jsonify, request
 import requests
 from bs4 import BeautifulSoup
-from html import unescape
-import re
-import json
 
 app = Flask(__name__)
 
@@ -76,6 +73,10 @@ def scrape_jobs(city=None, industry=None, query=None):
     base_url = 'https://kosovajob.com'
     params = {}
     
+    # Convert city to integer if it's a valid city name
+    if city and city in city_options.values():
+        city = list(city_options.keys())[list(city_options.values()).index(city)]
+    
     # Add parameters to the request if provided
     if city:
         params['jobCity'] = city
@@ -124,6 +125,7 @@ def get_jobs():
     
     # Return JSON response
     return jsonify(jobs)
+
 
 # Route to fetch job details
 @app.route('/job_details')
