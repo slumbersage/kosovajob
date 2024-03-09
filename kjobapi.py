@@ -5,162 +5,7 @@ from html import unescape
 import re
 import json
 
-
-
-
-
 app = Flask(__name__)
-
-# Function to scrape the website and extract job data
-def scrape_jobs(city=None, industry=None, query=None):
-    base_url = 'https://kosovajob.com'
-    params = {}
-    
-    # Add parameters to the request if provided
-    if city:
-        params['jobCity'] = city
-    if industry:
-        params['jobIndustry'] = industry
-    if query:
-        params['jobTitle'] = query
-    
-    # Make the request to the website
-    response = requests.get(base_url, params=params)
-    
-    # Parse the HTML content
-    soup = BeautifulSoup(response.content, 'html.parser')
-    
-    # Extract job data
-    job_listings = soup.find_all('div', class_='jobListCnts')
-    
-    jobs = []
-    for job in job_listings:
-        title = job.find('div', class_='jobListTitle').text.strip()
-        city = job.find('div', class_='jobListCity').text.strip()
-        expires = job.find('div', class_='jobListExpires').text.strip()
-        link = job.find('a')['href']
-        image_url = job.find('div', class_='jobListImage')['data-background-image']
-        
-        jobs.append({
-            'title': title,
-            'city': city,
-            'expires': expires,
-            'link': link,
-            'image_url': image_url
-        })
-    
-    return jobs
-
-
-
-# Route to fetch jobs
-@app.route('/jobs')
-def get_jobs():
-    # Get query parameters from the request
-    city = request.args.get('city')
-    industry = request.args.get('industry')
-    query = request.args.get('query')
-    
-    # Scrape jobs based on parameters
-    jobs = scrape_jobs(city, industry, query)
-    
-    # Return JSON response
-    return jsonify(jobs)
-
-
-
-
-
-
-
-
-
-
-
-from bs4 import BeautifulSoup
-import requests
-
-def parse_job_details(job_url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
-    }
-    
-    response = requests.get(job_url, headers=headers)
-    html_content = response.text
-    
-    # Parse the HTML content
-    soup = BeautifulSoup(html_content, 'html.parser')
-    
-    # Remove specific unwanted elements
-    unwanted_elements = soup.find_all(['footer', 'div', 'a'], class_=['contactLinks', 'socialLinks', 'footerLink', 'fbLinks'])
-    for element in unwanted_elements:
-        element.extract()
-    
-    # Remove div elements with class containing 'footer'
-    footer_divs = soup.find_all('div', class_=lambda value: value and 'footer' in value)
-    for div in footer_divs:
-        div.extract()
-    
-    # Merge paragraphs and lists into a single content string with Discord markdown formatting
-    content = ''
-    for element in soup.find_all(['p', 'ul']):
-        if element.name == 'ul':
-            content += '\n' + '\n'.join(['- ' + li.get_text(strip=True) for li in element.find_all('li')]) + '\n'
-        else:
-            content += '**' + element.get_text(strip=True) + '**\n\n'
-    
-    # Remove excessive whitespace characters at the end of the content string
-    content = content.rstrip()
-    
-    # Extract additional job details
-    additional_details = soup.find('div', class_='containerRightArea')
-    categories = additional_details.find_all('div', class_='listingArea')
-
-    details = {}
-    for category in categories:
-        label = category.find('b', class_='listingAreaInfo')
-        if label:
-            details[label.get_text(strip=True)] = category.get_text(strip=True).replace(label.get_text(strip=True), '')
-    
-    # Create a dictionary to hold the extracted job details
-    job_details = {
-        "content": content,
-        **details  # Include additional details
-    }
-    
-    # Return the dictionary of job details
-    return job_details
-
-# Example usage
-job_details_discord = parse_job_details('https://kosovajob.com/agro-com-group/shitese-2-mirembajtese-e-objektit')
-print(job_details_discord)
-
-
-    
-# # Example usage
-# job_details = parse_job_details('https://kosovajob.com/agro-com-group/shitese-2-mirembajtese-e-objektit')
-# print(job_details)
-
-
-
-
-
-# Route to fetch job details
-@app.route('/job_details')
-def get_job_details():
-    # Get job URL from the query parameters
-    job_url = request.args.get('url')
-    
-    # Parse job details
-    job_details = parse_job_details(job_url)
-    
-    # Return JSON response
-    return jsonify(job_details)
-
-
-
-
-
 
 # Dictionary mapping city option values to labels
 city_options = {
@@ -225,6 +70,127 @@ industry_options = {
     '35': 'Gastronomi, Hoteleri, Turizëm',
     '37': 'Transport, Logjistikë'
 }
+
+# Function to scrape the website and extract job data
+def scrape_jobs(city=None, industry=None, query=None):
+    base_url = 'https://kosovajob.com'
+    params = {}
+    
+    # Add parameters to the request if provided
+    if city:
+        params['jobCity'] = city
+    if industry:
+        params['jobIndustry'] = industry
+    if query:
+        params['jobTitle'] = query
+    
+    # Make the request to the website
+    response = requests.get(base_url, params=params)
+    
+    # Parse the HTML content
+    soup = BeautifulSoup(response.content, 'html.parser')
+    
+    # Extract job data
+    job_listings = soup.find_all('div', class_='jobListCnts')
+    
+    jobs = []
+    for job in job_listings:
+        title = job.find('div', class_='jobListTitle').text.strip()
+        city = job.find('div', class_='jobListCity').text.strip()
+        expires = job.find('div', class_='jobListExpires').text.strip()
+        link = job.find('a')['href']
+        image_url = job.find('div', class_='jobListImage')['data-background-image']
+        
+        jobs.append({
+            'title': title,
+            'city': city,
+            'expires': expires,
+            'link': link,
+            'image_url': image_url
+        })
+    
+    return jobs
+
+# Route to fetch jobs
+@app.route('/jobs')
+def get_jobs():
+    # Get query parameters from the request
+    city = request.args.get('city')
+    industry = request.args.get('industry')
+    query = request.args.get('query')
+    
+    # Scrape jobs based on parameters
+    jobs = scrape_jobs(city, industry, query)
+    
+    # Return JSON response
+    return jsonify(jobs)
+
+# Route to fetch job details
+@app.route('/job_details')
+def get_job_details():
+    # Get job URL from the query parameters
+    job_url = request.args.get('url')
+    
+    # Parse job details
+    job_details = parse_job_details(job_url)
+    
+    # Return JSON response
+    return jsonify(job_details)
+
+
+
+
+def parse_job_details(job_url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+    }
+    
+    response = requests.get(job_url, headers=headers)
+    html_content = response.text
+    
+    # Parse the HTML content
+    soup = BeautifulSoup(html_content, 'html.parser')
+    
+    # Remove specific unwanted elements
+    unwanted_elements = soup.find_all(['footer', 'div', 'a'], class_=['contactLinks', 'socialLinks', 'footerLink', 'fbLinks'])
+    for element in unwanted_elements:
+        element.extract()
+    
+    # Remove div elements with class containing 'footer'
+    footer_divs = soup.find_all('div', class_=lambda value: value and 'footer' in value)
+    for div in footer_divs:
+        div.extract()
+    
+    # Merge paragraphs and lists into a single content string with Discord markdown formatting
+    content = ''
+    for element in soup.find_all(['p', 'ul']):
+        if element.name == 'ul':
+            content += '\n' + '\n'.join(['- ' + li.get_text(strip=True) for li in element.find_all('li')]) + '\n'
+        else:
+            content += '**' + element.get_text(strip=True) + '**\n\n'
+    
+    # Remove excessive whitespace characters at the end of the content string
+    content = content.rstrip()
+    
+    # Extract additional job details
+    additional_details = soup.find('div', class_='containerRightArea')
+    categories = additional_details.find_all('div', class_='listingArea')
+
+    details = {}
+    for category in categories:
+        label = category.find('b', class_='listingAreaInfo')
+        if label:
+            details[label.get_text(strip=True)] = category.get_text(strip=True).replace(label.get_text(strip=True), '')
+    
+    # Create a dictionary to hold the extracted job details
+    job_details = {
+        "content": content,
+        **details  # Include additional details
+    }
+    
+    # Return the dictionary of job details
+    return job_details
+
 
 if __name__ == '__main__':
     app.run(debug=True)
