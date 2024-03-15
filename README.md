@@ -1,6 +1,35 @@
-Made this in roughly 2-3 hours i still need to work more on it,
+# API Documentation
 
-## API Documentation
+## Disclaimer
+Please note that this API is independently developed and maintained by myself and not affiliated with KosovaJob or any other entity mentioned.
+
+
+
+## Setup Guide
+
+To use this API, follow these simple steps:
+
+1. **Clone the Repository:**
+   Clone the repository to your local machine using Git:
+   ```bash
+   git clone https://github.com/slumbersage/kosovajob.git
+   ```
+
+2. **Install Dependencies:**
+   Navigate into the project directory and install the required dependencies using pip:
+   ```bash
+   cd kosovajob
+   pip install -r requirements.txt
+   ```
+
+3. **Run the Flask Application:**
+   Start the Flask application by running the following command:
+   ```bash
+   python3 kjobapi.py
+   ```
+   This will start the server locally, allowing you to make requests to the API endpoints.
+
+## Endpoints
 
 ### Fetch Jobs
 - **URL:** `/jobs`
